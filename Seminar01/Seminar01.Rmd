@@ -1,0 +1,105 @@
+Seminar 01
+========================================================
+
+This is an R Markdown document for Seminar 01 by Abrar Wafa
+
+```{r}
+prDat <- read.table("GSE4051_MINI.txt", row.names = 1)
+str(prDat)
+```
+
+How many rows are there? Hint: nrow(), dim().
+```{r}
+nrow(prDat)
+dim(prDat)
+```
+
+How many columns or variables are there? Hint: ncol(), length(), dim().
+```{r}
+ncol(prDat)
+length(prDat)
+```
+
+Inspect the first few observations or the last few or a random sample. 
+```{r}
+head(prDat)
+tail(prDat)
+prDat[sample(nrow(prDat), size = 6), ]
+```
+
+What does row correspond to -- different genes or different mice?
+Different mice
+
+What are the variable names? Hint: names(), dimnames().
+```{r}
+names(prDat)
+dimnames(prDat)
+```
+
+What "flavor" is each variable, i.e. numeric, character, factor? 
+```{r}
+str(prDat)
+```
+
+For sample, do a sanity check that each integer between 1 and the number of rows in the dataset occurs exactly once.
+```{r}
+identical(sort(prDat$sample), seq_len(nrow(prDat))) 
+```
+
+For each factor variable, what are the levels? Hint: levels(), str().
+```{r}
+levels(prDat$devStage)
+str(prDat$devStage)
+levels(prDat$gType)
+str(prDat$gType)
+```
+
+
+How many observations do we have for each level of devStage? For gType? Hint: summary(), table().
+```{r}
+summary(prDat$devStage)
+table(prDat$gType)
+```
+
+Perform a cross-tabulation of devStage and gType. Hint: table().
+```{r}
+with(prDat, table(devStage, gType))
+```
+or
+```{r}
+table(c(prDat["devStage"], prDat["gType"]))
+```
+
+For each quantitative variable, what are the extremes? How about average or median?
+```{r}
+quantile(prDat$sample)
+summary(prDat$crabHammer)
+quantile(prDat$eggBomb)
+summary(prDat$poisonFang)
+```
+
+Create a new data.frame called weeDat only containing observations for 
+which expression of poisonFang is above 7.5.
+```{r}
+weeDat <- subset(prDat, poisonFang>7.5)
+weeDat
+```
+
+For how many observations poisonFang > 7.5? 
+How do they break down by genotype and developmental stage?
+```{r}
+str(weeDat) # 9 observations
+summary(weeDat$devStage)
+with(weeDat, table(devStage, gType))
+```
+
+
+Print the observations with row names "Sample_16" and "Sample_38" to screen, showing only the 3 gene expression variables.
+```{r}
+prDat[c ("Sample_16", "Sample_38"), c("crabHammer", "eggBomb", "poisonFang") ]
+```
+
+Which samples have expression of eggBomb less than the 0.10 quantile?
+```{r}
+prDat[prDat$eggBomb < quantile(prDat$eggBomb, 0.1), ]
+```

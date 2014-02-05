@@ -1,0 +1,17 @@
+{
+    "contents" : "Seminar 01\n========================================================\n\nThis is an R Markdown document for Seminar 01 by Abrar Wafa\n\n```{r}\nprDat <- read.table(\"GSE4051_MINI.txt\", row.names = 1)\nstr(prDat)\n```\n\nHow many rows are there? Hint: nrow(), dim().\n```{r}\nnrow(prDat)\ndim(prDat)\n```\n\nHow many columns or variables are there? Hint: ncol(), length(), dim().\n```{r}\nncol(prDat)\nlength(prDat)\n```\n\nInspect the first few observations or the last few or a random sample. \n```{r}\nhead(prDat)\ntail(prDat)\nprDat[sample(nrow(prDat), size = 6), ]\n```\n\nWhat does row correspond to -- different genes or different mice?\nDifferent mice\n\nWhat are the variable names? Hint: names(), dimnames().\n```{r}\nnames(prDat)\ndimnames(prDat)\n```\n\nWhat \"flavor\" is each variable, i.e. numeric, character, factor? \n```{r}\nstr(prDat)\n```\n\nFor sample, do a sanity check that each integer between 1 and the number of rows in the dataset occurs exactly once.\n```{r}\nidentical(sort(prDat$sample), seq_len(nrow(prDat))) \n```\n\nFor each factor variable, what are the levels? Hint: levels(), str().\n```{r}\nlevels(prDat$devStage)\nstr(prDat$devStage)\nlevels(prDat$gType)\nstr(prDat$gType)\n```\n\n\nHow many observations do we have for each level of devStage? For gType? Hint: summary(), table().\n```{r}\nsummary(prDat$devStage)\ntable(prDat$gType)\n```\n\nPerform a cross-tabulation of devStage and gType. Hint: table().\n```{r}\nwith(prDat, table(devStage, gType))\n```\nor\n```{r}\ntable(c(prDat[\"devStage\"], prDat[\"gType\"]))\n```\n\nFor each quantitative variable, what are the extremes? How about average or median?\n```{r}\nquantile(prDat$sample)\nsummary(prDat$crabHammer)\nquantile(prDat$eggBomb)\nsummary(prDat$poisonFang)\n```\n\nCreate a new data.frame called weeDat only containing observations for \nwhich expression of poisonFang is above 7.5.\n```{r}\nweeDat <- subset(prDat, poisonFang>7.5)\nweeDat\n```\n\nFor how many observations poisonFang > 7.5? \nHow do they break down by genotype and developmental stage?\n```{r}\nstr(weeDat) # 9 observations\nsummary(weeDat$devStage)\nwith(weeDat, table(devStage, gType))\n```\n\n\nPrint the observations with row names \"Sample_16\" and \"Sample_38\" to screen, showing only the 3 gene expression variables.\n```{r}\nprDat[c (\"Sample_16\", \"Sample_38\"), c(\"crabHammer\", \"eggBomb\", \"poisonFang\") ]\n```\n\nWhich samples have expression of eggBomb less than the 0.10 quantile?\n```{r}\nprDat[prDat$eggBomb < quantile(prDat$eggBomb, 0.1), ]\n```\n",
+    "created" : 1391568990851.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1968102264",
+    "id" : "9C8A6AC",
+    "lastKnownWriteTime" : 1391569765,
+    "path" : "~/Dropbox/UBC/2nd Semester_2014/STAT 540/Github/stat540-2014-Wafa-Abrar/Seminar01/Seminar01.Rmd",
+    "project_path" : "Seminar01.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_markdown"
+}
