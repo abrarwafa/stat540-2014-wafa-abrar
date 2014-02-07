@@ -1,0 +1,111 @@
+
+# Load the photoRec data and the lattice package --------------------------
+
+
+library(lattice)
+prDat <- read.table("../data/GSE4051_data.tsv")
+str(prDat, max.level=0)
+
+prDes <- readRDS("../data/GSE4051_design.rds")
+str(prDes)
+
+
+# Write a function to prepare a mini-dataset for a small number of --------
+
+
+prepareData <- function(g){
+  pDat0 <- data.frame()
+  for(i in 1:length(g)){
+    pDat <- data.frame(prDes, gExp = as.vector(t(as.matrix(prDat[g[i], ]))), gene=g[i])
+    pDat0 <- rbind(pDat0,pDat)
+  }
+  pDat0
+}
+
+(luckyGenes <- c("1419655_at","1438815_at"))
+jDat <- prepareData(luckyGenes)
+str(jDat)
+head(jDat)
+tail(jDat)
+stripplot(gExp ~ devStage | gene, jDat, group = gType, jitter.data = TRUE, auto.key = TRUE, type = c('p', 'a'), grid = TRUE)
+
+
+# Write a function to stripplot a mini-dataset ----------------------------
+
+
+makeStripplot <- function(x){
+  stripplot(gExp ~ devStage | gene, x, group = gType, jitter.data = TRUE, auto.key = TRUE, type = c('p', 'a'), grid = TRUE)
+}
+makeStripplot(jDat)
+makeStripplot(newDat <- prepareData("1456341_a_at"))
+str(newDat)
+head(newDat)
+
+
+# Do a two-sample t-test --------------------------------------------------
+
+
+pDat <- prepareData("1456341_a_at")
+(someDat <- subset(pDat, devStage == "P2"| devStage == "4_weeks" ))
+t.test(gExp ~ devStage, someDat )
+
+
+# Fit a linear model with a categorical covariate -------------------------
+
+
+mDat <- prepareData("1438786_a_at")
+mFit <- lm(formula = gExp ~ devStage, data = mDat, subset = gType ==  "wt")
+summary(mFit)
+makeStripplot(mDat)
+
+# Vet your inferential results: does the intercept look plausible given the plot? How about the devStageP2 effect, etc.?
+# Yes it does, as it shows how devStageP2 and DevstageP10 effects are quite different than the rest of devStages
+
+
+# Perform inference for a contrast ----------------------------------------
+
+
+mFit
+contMat <- matrix(c(0, 1, 0, -1, 0), nrow=1)
+contMat
+(obsDiff <- contMat %*% coef(mFit))
+(sampMeans <- aggregate(gExp ~ devStage, mDat, FUN = mean,  subset = gType == "wt"))
+with(sampMeans, gExp[devStage == "P2"] - gExp[devStage == "P10"])
+
+# The variance-covariance matrix of the parameters estimated in the original model can be obtained with
+vcov(mFit)
+
+# Checking standard errors:
+summary(mFit)$coefficients[ , "Std. Error"]
+sqrt(diag(vcov(mFit)))
+# Yes they are equal to the sd reproted for out original model!
+
+
+summary(mFit)$coefficients
+
+(estSe <- contMat %*% vcov(mFit) %*% t(contMat))
+(testStat <- obsDiff/estSe)
+
+2 * pt(abs(testStat), df = df.residual(mFit), lower.tail = FALSE)
+
+
+# Fit a linear model with two categorical covariates  ---------------------
+makeStripplot(oDat <- prepareData("1448690_at"))
+str(oDat)
+
+oFitBig <- lm(formula = gExp ~ gType * devStage, data = oDat)
+summary(oFitBig)$coef
+summary(oFitBig)
+oFitSmall <- lm(formula = gExp ~ gType + devStage, data = oDat)
+summary(oFitSmall)$coef
+anova(oFitBig, oFitSmall)
+
+# Is the intercept plausible? How about the various effects? Do the ones with small p-values, e.g. meeting a conventional cut-off of 0.05, look 'real' to you?
+# Yes the intercept does look plausible. The p-values showes that there is a significant effect in the developmental Stage.  
+
+makeStripplot(dDat <- prepareData("1429225_at"))
+dFitBig <- lm(formula = gExp ~ gType * devStage, data = dDat)
+summary(dFitBig)
+dFitSmall <- lm(formula = gExp ~ gType + devStage, data = dDat)
+summary(dFitSmall)$coef
+anova(dFitSmall,dFitBig)
